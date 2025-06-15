@@ -27,7 +27,7 @@
                 <nav>
                     <ul class="flex space-x-4">
                         <li><a href="index.html" class="nav-link active" data-page="index">Início</a></li>
-                        </ul>
+                    </ul>
                 </nav>
             </div>
         </header>
@@ -195,37 +195,63 @@
         // --- LEMBRETES E AVISOS ---
         const formAdicionarAviso = document.getElementById('formAdicionarAviso');
         const listaAvisos = document.getElementById('listaAvisos');
+        const avisoConteudoInput = document.getElementById('aviso_conteudo');
+        const avisoUnidadeInput = document.getElementById('aviso_unidade');
+        const avisoUrgenteInput = document.getElementById('aviso_urgente');
         let avisos = loadData('avisos'); // Carrega avisos do localStorage
+
+        let editingAvisoIndex = -1; // -1 significa que não estamos editando
 
         function renderAvisos() {
             listaAvisos.innerHTML = ''; // Limpa a lista antes de renderizar
             // Exibe os avisos do mais novo para o mais antigo (unshift adiciona no começo)
             [...avisos].reverse().forEach((aviso, index) => { // Invertendo para mostrar mais novo primeiro
                 const newItem = document.createElement('li');
-                newItem.classList.add('py-2', 'flex', 'justify-between', 'items-center');
+                newItem.classList.add('py-2', 'flex', 'flex-col', 'sm:flex-row', 'sm:justify-between', 'sm:items-center'); // Ajuste para melhor layout em telas pequenas
                 newItem.innerHTML = `
-                    <div>
+                    <div class="flex-grow mb-2 sm:mb-0">
                         <p class="font-medium">${aviso.unidade ? `**${aviso.unidade}:** ` : ''}${aviso.conteudo}${aviso.urgente ? ' (Urgente)' : ''}</p>
                         <p class="text-sm text-gray-600">Registrado em ${aviso.dataHora}</p>
                     </div>
-                    <button class="ml-4 px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded-md hover:bg-gray-300" data-index="${index}" onclick="markAvisoAsRead(this)">Marcar como Lido</button>
+                    <div class="flex space-x-2">
+                        <button class="px-2 py-1 bg-yellow-500 text-white text-xs rounded-md hover:bg-yellow-600" data-index="${avisos.length - 1 - index}" onclick="editAviso(this)">Editar</button>
+                        <button class="px-2 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600" data-index="${avisos.length - 1 - index}" onclick="deleteAviso(this)">Excluir</button>
+                    </div>
                 `;
                 listaAvisos.appendChild(newItem); // Adiciona no final para manter a ordem invertida correta
             });
         }
 
-        function markAvisoAsRead(buttonElement) {
+        function deleteAviso(buttonElement) {
+            if (confirm('Tem certeza que deseja excluir este aviso?')) {
+                const index = buttonElement.dataset.index;
+                avisos.splice(index, 1); // Remove o aviso pelo índice
+                saveData('avisos', avisos); // Salva a lista atualizada
+                renderAvisos(); // Renderiza a lista novamente
+            }
+        }
+
+        function editAviso(buttonElement) {
             const index = buttonElement.dataset.index;
-            avisos.splice(index, 1); // Remove o aviso pelo índice
-            saveData('avisos', avisos); // Salva a lista atualizada
-            renderAvisos(); // Renderiza a lista novamente
+            const avisoToEdit = avisos[index];
+
+            avisoUnidadeInput.value = avisoToEdit.unidade;
+            avisoConteudoInput.value = avisoToEdit.conteudo;
+            avisoUrgenteInput.checked = avisoToEdit.urgente;
+
+            editingAvisoIndex = index; // Armazena o índice do aviso que está sendo editado
+
+            // Altera o texto do botão de envio para indicar edição
+            document.querySelector('#formAdicionarAviso button[type="submit"]').textContent = 'Atualizar Aviso';
+            document.querySelector('#formAdicionarAviso button[type="submit"]').classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+            document.querySelector('#formAdicionarAviso button[type="submit"]').classList.add('bg-orange-500', 'hover:bg-orange-600');
         }
 
         formAdicionarAviso.addEventListener('submit', (e) => {
             e.preventDefault();
-            const avisoUnidade = document.getElementById('aviso_unidade').value;
-            const avisoConteudo = document.getElementById('aviso_conteudo').value;
-            const avisoUrgente = document.getElementById('aviso_urgente').checked;
+            const avisoUnidade = avisoUnidadeInput.value;
+            const avisoConteudo = avisoConteudoInput.value;
+            const avisoUrgente = avisoUrgenteInput.checked;
             const dataHoraAtual = obterDataAtualFormatada() + ' - ' + obterHoraAtual();
 
             if (!avisoConteudo) {
@@ -233,14 +259,30 @@
                 return;
             }
 
-            const novoAviso = {
-                unidade: avisoUnidade,
-                conteudo: avisoConteudo,
-                urgente: avisoUrgente,
-                dataHora: dataHoraAtual
-            };
+            if (editingAvisoIndex !== -1) {
+                // Estamos editando um aviso existente
+                avisos[editingAvisoIndex] = {
+                    unidade: avisoUnidade,
+                    conteudo: avisoConteudo,
+                    urgente: avisoUrgente,
+                    dataHora: avisos[editingAvisoIndex].dataHora // Mantém a data/hora original
+                };
+                editingAvisoIndex = -1; // Reseta o estado de edição
+                 // Volta o texto e cor do botão para "Adicionar Aviso"
+                document.querySelector('#formAdicionarAviso button[type="submit"]').textContent = 'Adicionar Aviso';
+                document.querySelector('#formAdicionarAviso button[type="submit"]').classList.remove('bg-orange-500', 'hover:bg-orange-600');
+                document.querySelector('#formAdicionarAviso button[type="submit"]').classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            } else {
+                // Estamos adicionando um novo aviso
+                const novoAviso = {
+                    unidade: avisoUnidade,
+                    conteudo: avisoConteudo,
+                    urgente: avisoUrgente,
+                    dataHora: dataHoraAtual
+                };
+                avisos.push(novoAviso);
+            }
 
-            avisos.push(novoAviso); // Adiciona no final, mas a renderização inverte
             saveData('avisos', avisos); // Salva no localStorage
             renderAvisos(); // Atualiza a exibição
 
@@ -256,7 +298,7 @@
                 const rowValues = headers.map(header => {
                     let value = row[header] !== undefined ? row[header] : '';
                     value = String(value).replace(/"/g, '""');
-                    if (value.includes(',') || value.includes('\n') || value.includes(';')) { // Adicionado ;
+                    if (value.includes(',') || value.includes('\n') || value.includes(';')) {
                         value = `"${value}"`;
                     }
                     return value;
@@ -289,7 +331,7 @@
 
             sections.forEach(section => {
                 // Add new page if content overflows
-                if (yOffset + 20 > doc.internal.pageSize.height - 30) { // Check if new content fits
+                if (yOffset + 20 > doc.internal.pageSize.height - 30) {
                     doc.addPage();
                     yOffset = 22;
                 }
@@ -401,19 +443,6 @@
 
         // --- INICIALIZAÇÃO AO CARREGAR A PÁGINA ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Não precisamos mais do highlight de navegação, já que só tem "Início"
-            // Deixei o JS aqui por segurança, mas ele não fará diferença
-            const path = window.location.pathname;
-            const fileName = path.split('/').pop();
-
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if (link.getAttribute('href') === fileName) {
-                    link.classList.add('active');
-                } else if (fileName === '' && link.getAttribute('href') === 'index.html') {
-                    link.classList.add('active');
-                }
-            });
-
             // Renderiza os itens existentes ao carregar a página
             renderHospedes();
             renderAvisos();

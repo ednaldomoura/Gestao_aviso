@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Portaria - Início</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para o foco dos inputs */
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* blue-500 com opacidade */
+            border-color: #3b82f6; /* blue-500 */
+        }
+        /* Remover o estilo de link ativo para os itens que serão removidos */
+        .nav-link.active {
+            font-weight: bold;
+            color: #bfdbfe;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+    <div class="min-h-screen flex flex-col">
+        <header class="bg-blue-600 text-white p-4 shadow-md">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-2xl font-bold">Gestão de Portaria</h1>
+                <nav>
+                    <ul class="flex space-x-4">
+                        <li><a href="index.html" class="nav-link active" data-page="index">Início</a></li>
+                        </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main class="flex-grow container mx-auto p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <div class="lg:col-span-2 space-y-6">
+
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-700">Controle de Hospedagem</h2>
+                    <form id="formRegistroHospede" class="space-y-3 mb-4">
+                        <div>
+                            <label for="hospede_nome" class="block text-sm font-medium text-gray-700 mb-1">Nome do Hóspede</label>
+                            <input type="text" id="hospede_nome" name="hospede_nome" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="Nome completo do hóspede" required>
+                        </div>
+                        <div>
+                            <label for="hospede_unidade" class="block text-sm font-medium text-gray-700 mb-1">Unidade Responsável</label>
+                            <input type="text" id="hospede_unidade" name="hospede_unidade" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="Ex: Apt 101, Bloco A" required>
+                        </div>
+                        <div>
+                            <label for="periodo_hospedagem" class="block text-sm font-medium text-gray-700 mb-1">Período</label>
+                            <input type="text" id="periodo_hospedagem" name="periodo_hospedagem" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="Ex: 01/01/2025 - 10/01/2025" required>
+                        </div>
+                        <button type="submit" class="w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Registrar Hóspede</button>
+                    </form>
+
+                    <h3 class="text-lg font-semibold mb-2">Hóspedes Atuais</h3>
+                    <ul id="listaHospedes" class="divide-y divide-gray-200">
+                        </ul>
+
+                    <div class="mt-6 flex space-x-4">
+                        <button id="btnExportCSVHospedes" class="flex-1 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Exportar Hóspedes (CSV)</button>
+                    </div>
+                </section>
+
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-700">Lembretes e Avisos</h2>
+                    <form id="formAdicionarAviso" class="space-y-3 mb-4">
+                        <div>
+                            <label for="aviso_unidade" class="block text-sm font-medium text-gray-700 mb-1">Unidade/Morador (Opcional)</label>
+                            <input type="text" id="aviso_unidade" name="aviso_unidade" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="Ex: Apt 203 ou Morador João">
+                        </div>
+                        <div>
+                            <label for="aviso_conteudo" class="block text-sm font-medium text-gray-700 mb-1">Conteúdo do Aviso</label>
+                            <textarea id="aviso_conteudo" name="aviso_conteudo" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Ex: Encomenda chegou, Problema no portão..." required></textarea>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="aviso_urgente" name="aviso_urgente" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                            <label for="aviso_urgente" class="ml-2 block text-sm text-gray-900">Urgente?</label>
+                        </div>
+                        <button type="submit" class="w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Adicionar Aviso</button>
+                    </form>
+
+                    <h3 class="text-lg font-semibold mb-2">Avisos Pendentes</h3>
+                    <ul id="listaAvisos" class="divide-y divide-gray-200">
+                        </ul>
+
+                    <div class="mt-6 flex space-x-4">
+                        <button id="btnExportCSVAvisos" class="flex-1 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Exportar Avisos (CSV)</button>
+                    </div>
+                </section>
+
+                <section class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-700">Relatórios Gerais</h2>
+                    <button id="btnRelatorioGeralPDF" class="w-full px-6 py-3 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                        Gerar Relatório de Todos os Registros (PDF)
+                    </button>
+                </section>
+
+            </div>
+        </main>
+
+        <footer class="bg-gray-800 text-white p-4 text-center mt-6">
+            <div class="container mx-auto">
+                <p>&copy; 2025 Sistema de Gestão de Portaria. Todos os direitos reservados.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        // --- FUNÇÕES AUXILIARES ---
+        function obterHoraAtual() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+
+        function obterDataAtualFormatada() {
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // Mês é 0-indexed
+            const year = now.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // --- PERSISTÊNCIA DE DADOS COM LOCALSTORAGE ---
+
+        // Função para carregar dados do localStorage
+        function loadData(key) {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : [];
+        }
+
+        // Função para salvar dados no localStorage
+        function saveData(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        // --- REGISTRO DE HÓSPEDES ---
+        const formRegistroHospede = document.getElementById('formRegistroHospede');
+        const listaHospedes = document.getElementById('listaHospedes');
+        let hospedes = loadData('hospedes'); // Carrega hóspedes do localStorage
+
+        function renderHospedes() {
+            listaHospedes.innerHTML = ''; // Limpa a lista antes de renderizar
+            hospedes.forEach((hospede, index) => {
+                const newItem = document.createElement('li');
+                newItem.classList.add('py-2', 'flex', 'justify-between', 'items-center');
+                newItem.innerHTML = `
+                    <div>
+                        <p class="font-medium">${hospede.nome}</p>
+                        <p class="text-sm text-gray-600">Unidade: ${hospede.unidade} - Período: ${hospede.periodo}</p>
+                    </div>
+                    <button class="ml-4 px-2 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600" data-index="${index}" onclick="removeHospede(this)">Remover</button>
+                `;
+                listaHospedes.appendChild(newItem);
+            });
+        }
+
+        function removeHospede(buttonElement) {
+            const index = buttonElement.dataset.index;
+            hospedes.splice(index, 1); // Remove o hóspede pelo índice
+            saveData('hospedes', hospedes); // Salva a lista atualizada
+            renderHospedes(); // Renderiza a lista novamente
+        }
+
+        formRegistroHospede.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const hospedeNome = document.getElementById('hospede_nome').value;
+            const hospedeUnidade = document.getElementById('hospede_unidade').value;
+            const periodoHospedagem = document.getElementById('periodo_hospedagem').value;
+
+            if (!hospedeNome || !hospedeUnidade || !periodoHospedagem) {
+                alert('Por favor, preencha todos os campos do hóspede.');
+                return;
+            }
+
+            const novoHospede = {
+                nome: hospedeNome,
+                unidade: hospedeUnidade,
+                periodo: periodoHospedagem
+            };
+
+            hospedes.push(novoHospede);
+            saveData('hospedes', hospedes); // Salva no localStorage
+            renderHospedes(); // Atualiza a exibição
+
+            formRegistroHospede.reset();
+        });
+
+        // --- LEMBRETES E AVISOS ---
+        const formAdicionarAviso = document.getElementById('formAdicionarAviso');
+        const listaAvisos = document.getElementById('listaAvisos');
+        let avisos = loadData('avisos'); // Carrega avisos do localStorage
+
+        function renderAvisos() {
+            listaAvisos.innerHTML = ''; // Limpa a lista antes de renderizar
+            // Exibe os avisos do mais novo para o mais antigo (unshift adiciona no começo)
+            [...avisos].reverse().forEach((aviso, index) => { // Invertendo para mostrar mais novo primeiro
+                const newItem = document.createElement('li');
+                newItem.classList.add('py-2', 'flex', 'justify-between', 'items-center');
+                newItem.innerHTML = `
+                    <div>
+                        <p class="font-medium">${aviso.unidade ? `**${aviso.unidade}:** ` : ''}${aviso.conteudo}${aviso.urgente ? ' (Urgente)' : ''}</p>
+                        <p class="text-sm text-gray-600">Registrado em ${aviso.dataHora}</p>
+                    </div>
+                    <button class="ml-4 px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded-md hover:bg-gray-300" data-index="${index}" onclick="markAvisoAsRead(this)">Marcar como Lido</button>
+                `;
+                listaAvisos.appendChild(newItem); // Adiciona no final para manter a ordem invertida correta
+            });
+        }
+
+        function markAvisoAsRead(buttonElement) {
+            const index = buttonElement.dataset.index;
+            avisos.splice(index, 1); // Remove o aviso pelo índice
+            saveData('avisos', avisos); // Salva a lista atualizada
+            renderAvisos(); // Renderiza a lista novamente
+        }
+
+        formAdicionarAviso.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const avisoUnidade = document.getElementById('aviso_unidade').value;
+            const avisoConteudo = document.getElementById('aviso_conteudo').value;
+            const avisoUrgente = document.getElementById('aviso_urgente').checked;
+            const dataHoraAtual = obterDataAtualFormatada() + ' - ' + obterHoraAtual();
+
+            if (!avisoConteudo) {
+                alert('O conteúdo do aviso não pode estar vazio.');
+                return;
+            }
+
+            const novoAviso = {
+                unidade: avisoUnidade,
+                conteudo: avisoConteudo,
+                urgente: avisoUrgente,
+                dataHora: dataHoraAtual
+            };
+
+            avisos.push(novoAviso); // Adiciona no final, mas a renderização inverte
+            saveData('avisos', avisos); // Salva no localStorage
+            renderAvisos(); // Atualiza a exibição
+
+            formAdicionarAviso.reset();
+        });
+
+        // --- FUNÇÕES DE EXPORTAÇÃO ---
+
+        // Função para exportar para CSV
+        function exportToCSV(filename, data, headers) {
+            let csvContent = headers.join(',') + '\n';
+            data.forEach(row => {
+                const rowValues = headers.map(header => {
+                    let value = row[header] !== undefined ? row[header] : '';
+                    value = String(value).replace(/"/g, '""');
+                    if (value.includes(',') || value.includes('\n') || value.includes(';')) { // Adicionado ;
+                        value = `"${value}"`;
+                    }
+                    return value;
+                });
+                csvContent += rowValues.join(',') + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        // Função para exportar para PDF
+        function exportToPDF(filename, title, sections) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let yOffset = 22; // Initial Y position for content
+
+            doc.setFontSize(18);
+            doc.text(title, 14, yOffset);
+            yOffset += 10;
+
+            sections.forEach(section => {
+                // Add new page if content overflows
+                if (yOffset + 20 > doc.internal.pageSize.height - 30) { // Check if new content fits
+                    doc.addPage();
+                    yOffset = 22;
+                }
+
+                doc.setFontSize(14);
+                doc.setTextColor(59, 130, 246); // blue-600
+                doc.text(section.sectionTitle, 14, yOffset);
+                yOffset += 8;
+
+                if (section.data.length === 0) {
+                    doc.setFontSize(10);
+                    doc.setTextColor(100); // gray
+                    doc.text("Nenhum registro encontrado.", 14, yOffset);
+                    yOffset += 10;
+                } else {
+                    doc.autoTable({
+                        startY: yOffset,
+                        head: [section.headers],
+                        body: section.data,
+                        theme: 'striped',
+                        headStyles: { fillColor: [59, 130, 246] }, // blue-500
+                        styles: { fontSize: 8, cellPadding: 2 },
+                        columnStyles: section.columnStyles || {},
+                        didDrawPage: function(data) {
+                            // Footer
+                            let str = "Página " + doc.internal.getNumberOfPages();
+                            doc.setFontSize(10);
+                            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+                        }
+                    });
+                    yOffset = doc.autoTable.previous.finalY + 10; // Update Y position after table
+                }
+                yOffset += 10; // Space after each section
+            });
+
+            doc.save(filename);
+        }
+
+
+        // --- LISTENERS PARA BOTÕES DE EXPORTAÇÃO DE HÓSPEDES ---
+        document.getElementById('btnExportCSVHospedes').addEventListener('click', () => {
+            if (hospedes.length === 0) {
+                alert('Não há hóspedes para exportar.');
+                return;
+            }
+            const headers = ['nome', 'unidade', 'periodo'];
+            const dataToExport = hospedes.map(h => ({
+                nome: h.nome,
+                unidade: h.unidade,
+                periodo: h.periodo
+            }));
+            exportToCSV(`hospedes_${obterDataAtualFormatada().replace(/\//g, '-')}.csv`, dataToExport, headers);
+        });
+
+        // --- LISTENERS PARA BOTÕES DE EXPORTAÇÃO DE AVISOS ---
+        document.getElementById('btnExportCSVAvisos').addEventListener('click', () => {
+            if (avisos.length === 0) {
+                alert('Não há avisos para exportar.');
+                return;
+            }
+            const headers = ['unidade', 'conteudo', 'urgente', 'dataHora'];
+            const dataToExport = avisos.map(a => ({
+                unidade: a.unidade,
+                conteudo: a.conteudo,
+                urgente: a.urgente ? 'Sim' : 'Não',
+                dataHora: a.dataHora
+            }));
+            exportToCSV(`avisos_${obterDataAtualFormatada().replace(/\//g, '-')}.csv`, dataToExport, headers);
+        });
+
+        // --- LISTENER PARA O NOVO BOTÃO DE RELATÓRIO GERAL (PDF) ---
+        document.getElementById('btnRelatorioGeralPDF').addEventListener('click', () => {
+            const dataAtual = obterDataAtualFormatada().replace(/\//g, '-');
+            const title = `Relatório Geral de Portaria - ${dataAtual}`;
+
+            const hospedesHeaders = ['Nome', 'Unidade', 'Período'];
+            const hospedesData = hospedes.map(hospede => [hospede.nome, hospede.unidade, hospede.periodo]);
+
+            const avisosHeaders = ['Unidade', 'Conteúdo', 'Urgente', 'Data/Hora'];
+            const avisosData = avisos.map(aviso => [aviso.unidade, aviso.conteudo, aviso.urgente ? 'Sim' : 'Não', aviso.dataHora]);
+
+            const sectionsToExport = [
+                {
+                    sectionTitle: 'Hóspedes Registrados',
+                    headers: hospedesHeaders,
+                    data: hospedesData,
+                    columnStyles: {
+                        0: { cellWidth: 50 }, // Nome
+                        1: { cellWidth: 40 }, // Unidade
+                        2: { cellWidth: 60 }  // Período
+                    }
+                },
+                {
+                    sectionTitle: 'Avisos Pendentes',
+                    headers: avisosHeaders,
+                    data: avisosData,
+                    columnStyles: {
+                        0: { cellWidth: 35 },  // Unidade
+                        1: { cellWidth: 70 },  // Conteúdo
+                        2: { cellWidth: 20 },  // Urgente
+                        3: { cellWidth: 40 }   // Data/Hora
+                    }
+                }
+            ];
+
+            exportToPDF(`relatorio_geral_${dataAtual}.pdf`, title, sectionsToExport);
+        });
+
+
+        // --- INICIALIZAÇÃO AO CARREGAR A PÁGINA ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Não precisamos mais do highlight de navegação, já que só tem "Início"
+            // Deixei o JS aqui por segurança, mas ele não fará diferença
+            const path = window.location.pathname;
+            const fileName = path.split('/').pop();
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href') === fileName) {
+                    link.classList.add('active');
+                } else if (fileName === '' && link.getAttribute('href') === 'index.html') {
+                    link.classList.add('active');
+                }
+            });
+
+            // Renderiza os itens existentes ao carregar a página
+            renderHospedes();
+            renderAvisos();
+        });
+    </script>
+</body>
+</html>
